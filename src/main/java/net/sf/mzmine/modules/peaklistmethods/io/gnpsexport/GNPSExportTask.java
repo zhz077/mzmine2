@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /* This module was prepared by Abi Sarvepalli, Christopher Jensen, and Zheng Zhang 
+=======
+/*
+ * This module was prepared by Abi Sarvepalli, Christopher Jensen, and Zheng Zhang 
+>>>>>>> mzmine/master
  * at the Dorrestein Lab (University of California, San Diego). 
  * 
  * It is freely available under the GNU GPL licence of MZmine2.
@@ -128,14 +133,22 @@ public class GNPSExportTask extends AbstractTask {
         
     	for (PeakListRow row : peakList.getRows()) {
             
+<<<<<<< HEAD
     		//IsotopePattern ip = row.getBestIsotopePattern();
             //if (ip == null) continue;
             
+=======
+    		IsotopePattern ip = row.getBestIsotopePattern();
+            if (ip == null) continue;
+>>>>>>> mzmine/master
             
             String rowID = Integer.toString(row.getID());
             
             String retTimeInSeconds = Double.toString(row.getAverageRT() * 60);
+<<<<<<< HEAD
             
+=======
+>>>>>>> mzmine/master
   
 
             // Get the MS/MS scan number
@@ -149,7 +162,11 @@ public class GNPSExportTask extends AbstractTask {
                 // Get the MS/MS scan number
                 
                  msmsScanNumber = bestPeak.getMostIntenseFragmentScanNumber();
+<<<<<<< HEAD
                	if (msmsScanNumber <1) {
+=======
+               	if (msmsScanNumber < 1) {
+>>>>>>> mzmine/master
                		copyRow.removePeak(bestPeak.getDataFile());
                		if(copyRow.getPeaks().length !=0){
                			// row is not empty  		
@@ -157,8 +174,15 @@ public class GNPSExportTask extends AbstractTask {
             		msmsScanNumber = bestPeak.getMostIntenseFragmentScanNumber();
                		}
             	}
+<<<<<<< HEAD
                 }
         	if (msmsScanNumber >= 1) {            	             	
+=======
+            }
+        	
+        	if (msmsScanNumber >= 1) {            	             	
+            	// MS/MS scan must exist, because msmsScanNumber was > 0
+>>>>>>> mzmine/master
             	Scan msmsScan = bestPeak.getDataFile().getScan(msmsScanNumber);
 
             	MassList massList = msmsScan.getMassList(massListName);
@@ -173,6 +197,7 @@ public class GNPSExportTask extends AbstractTask {
             	}
             	
             	writer.write("BEGIN IONS"+newLine);                		                		                                                
+<<<<<<< HEAD
                 
             	if (rowID != null)
             		writer.write("FEATURE_ID=" + rowID + newLine);
@@ -181,6 +206,15 @@ public class GNPSExportTask extends AbstractTask {
                 if (mass != null) 
                 	writer.write("PEPMASS=" + mass + newLine);
                 
+=======
+
+            	if (rowID != null)
+            		writer.write("FEATURE_ID=" + rowID + newLine);
+
+                String mass = Double.toString(row.getAverageMZ());
+                if (mass != null) writer.write("PEPMASS=" + mass + newLine);                                                                      
+               
+>>>>>>> mzmine/master
                 if(rowID != null) {
                 	writer.write("SCANS=" + rowID + newLine);
                 	writer.write("RTINSECONDS=" + retTimeInSeconds + newLine);
@@ -195,14 +229,22 @@ public class GNPSExportTask extends AbstractTask {
 					msmsPolarity = "";
 				}
 				writer.write("CHARGE=" + msmsCharge + msmsPolarity + newLine);
+<<<<<<< HEAD
 				
                
+=======
+
+>>>>>>> mzmine/master
                 writer.write("MSLEVEL=2" + newLine);                                                                                                
                 
             	DataPoint peaks[] = massList.getDataPoints();
         	    for (DataPoint peak : peaks) {
+<<<<<<< HEAD
         		    writer.write(peak.getMZ() + " " + peak.getIntensity() + newLine);                		    
         		    //out.println();
+=======
+        		    writer.write(peak.getMZ() + " " + peak.getIntensity() + newLine);
+>>>>>>> mzmine/master
         	    }
 
         	    writer.write("END IONS"+newLine);
@@ -215,6 +257,10 @@ public class GNPSExportTask extends AbstractTask {
 		return "Exporting GNPS of peak list(s) " 
         + Arrays.toString(peakLists) + " to MGF file(s)";
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> mzmine/master
     /**
      * Create a copy of a peak list row.
      */
@@ -236,5 +282,8 @@ public class GNPSExportTask extends AbstractTask {
 
         return newRow;
     }
+<<<<<<< HEAD
 	
+=======
+>>>>>>> mzmine/master
 }
