@@ -37,6 +37,7 @@ import net.sf.mzmine.datamodel.impl.SimplePeakInformation;
 import net.sf.mzmine.main.MZmineCore;
 import net.sf.mzmine.util.MathUtils;
 import net.sf.mzmine.util.ScanUtils;
+import java.util.logging.Logger;
 
 /**
  * Chromatogram implementing ChromatographicPeak.
@@ -83,9 +84,10 @@ public class Chromatogram implements Feature {
 
     private final int scanNumbers[];
     private double mzRangeMSMS,RTRangeMSMS;
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     public void outputChromToFile(){
-        System.out.println("does nothing");
+    	 logger.info("does nothing");
     }
 
     /**
