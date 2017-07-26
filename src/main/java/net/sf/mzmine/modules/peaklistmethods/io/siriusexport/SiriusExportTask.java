@@ -16,12 +16,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-<<<<<<< HEAD
-=======
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
->>>>>>> mzmine/master
 import java.util.regex.Pattern;
 import net.sf.mzmine.datamodel.DataPoint;
 import net.sf.mzmine.datamodel.Feature;
@@ -32,15 +29,15 @@ import net.sf.mzmine.datamodel.PeakListRow;
 import net.sf.mzmine.datamodel.Scan;
 import net.sf.mzmine.datamodel.impl.SimpleFeature;
 import net.sf.mzmine.datamodel.impl.SimplePeakListRow;
-<<<<<<< HEAD
-=======
 import net.sf.mzmine.datamodel.impl.SimpleDataPoint;
->>>>>>> mzmine/master
 import net.sf.mzmine.main.MZmineCore;
 import net.sf.mzmine.parameters.ParameterSet;
 import net.sf.mzmine.taskcontrol.AbstractTask;
 import net.sf.mzmine.taskcontrol.TaskStatus;
+import net.sf.mzmine.util.PeakSorter;
 import net.sf.mzmine.util.PeakUtils;
+import net.sf.mzmine.util.SortingDirection;
+import net.sf.mzmine.util.SortingProperty;
 
 public class SiriusExportTask extends AbstractTask {
 	private final PeakList[] peakLists;
@@ -191,17 +188,79 @@ public class SiriusExportTask extends AbstractTask {
 			writer.write("END IONS" + newLine);
 
 			writer.write(newLine);
-			
-			int msmsScanNumber = bestPeak.getMostIntenseFragmentScanNumber();
+	
+			Feature peaks[] = row.getPeaks();
+			int ms2scanNumber;
+			double ms2Peak =0.0;
+			int toPrintScanNumber = 0;
+			Feature PeaktoPrint = peaks[0];
+			for (Feature peak:peaks){
+				ms2scanNumber = peak.getMostIntenseFragmentScanNumber();
+				if(ms2scanNumber >0 ){
+					 double topPeak = peak.getDataFile().getScan(ms2scanNumber).getHighestDataPoint().getIntensity();
+					 if (topPeak > ms2Peak){
+						 ms2Peak = topPeak;
+						 toPrintScanNumber = ms2scanNumber; 
+						 PeaktoPrint = peak;
+					 }			 
+				}
+			}
+			// if there exists msmsscans
+			if(ms2Peak != 0) {
+				// if there exists masslist
+				Scan msmsScan = PeaktoPrint.getDataFile().getScan(toPrintScanNumber);
+				MassList massList = msmsScan.getMassList(massListName);
 
-			PeakListRow copyRow = copyPeakRow(row);
+				if (massList == null) {
+					MZmineCore.getDesktop().displayErrorMessage(MZmineCore.getDesktop().getMainWindow(),
+							"There is no mass list called " + massListName + " for MS/MS scan #" + toPrintScanNumber + " ("
+									+ PeaktoPrint.getDataFile() + ")");
+					return;
+				}
+				writer.write("BEGIN IONS" + newLine);
+
+				if (rowID != null)
+					writer.write("FEATURE_ID=" + rowID + newLine);	
+				if (mass != null)
+					writer.write("PEPMASS=" + mass + newLine);
+				
+				if (rowID != null) {
+					writer.write("SCANS=" + rowID + newLine);
+					writer.write("RTINSECONDS=" + retTimeInSeconds + newLine);
+				}
+									
+				int msmsCharge = msmsScan.getPrecursorCharge();
+				String msmsPolarity = msmsScan.getPolarity().asSingleChar();								
+				if(msmsPolarity.equals("0"))
+					msmsPolarity = "";
+				if(msmsCharge == 0) {
+					msmsCharge = 1;
+					msmsPolarity = "";
+				}
+				writer.write("CHARGE=" + msmsCharge + msmsPolarity + newLine);
+				
+				
+				writer.write("MSLEVEL=2" + newLine);
+
+				DataPoint peaks2[] = massList.getDataPoints();
+				for (DataPoint peak : peaks2) {
+					writer.write(peak.getMZ() + " " + peak.getIntensity() + newLine);
+				}
+				writer.write("END IONS" + newLine);
+				writer.write((int)(toPrintScanNumber));
+				writer.write(newLine);
+				
+				
+			}
+			
+			//PeakListRow copyRow = copyPeakRow(row);
 			// Best peak always exists, because peak list row has at least
 			// one peak
-			bestPeak = copyRow.getBestPeak();
+			//bestPeak = copyRow.getBestPeak();
 
 			// Get the MS/MS scan number
 
-			msmsScanNumber = bestPeak.getMostIntenseFragmentScanNumber();
+			/*msmsScanNumber = bestPeak.getMostIntenseFragmentScanNumber();
 			if (msmsScanNumber < 1) {
 				copyRow.removePeak(bestPeak.getDataFile());
 				if (copyRow.getPeaks().length != 0) {
@@ -255,14 +314,14 @@ public class SiriusExportTask extends AbstractTask {
 				}
 				writer.write("END IONS" + newLine);
 				writer.write(newLine);
-			}
+			}*/
 		}
 	}
 
 	/**
 	 * Create a copy of a peak list row.
 	 */
-	private static PeakListRow copyPeakRow(final PeakListRow row) {
+	/*private static PeakListRow copyPeakRow(final PeakListRow row) {
 
 		// Copy the peak list row.
 		final PeakListRow newRow = new SimplePeakListRow(row.getID());
@@ -278,44 +337,5 @@ public class SiriusExportTask extends AbstractTask {
 		}
 
 		return newRow;
-	}
-<<<<<<< HEAD
-
-	// private DataPoint[] integerDataPoints(final DataPoint[] dataPoints,
-	// final String mode)
-	// {
-	// int size = dataPoints.length;
-	//
-	// Map <Double, Double> integerDataPoints = new HashMap <> ();
-	//
-	// for (int i = 0; i < size; ++i)
-	// {
-	// double mz = (double) Math.round(dataPoints[i].getMZ());
-	// double intensity = dataPoints[i].getIntensity();
-	// Double prevIntensity = integerDataPoints.get(mz);
-	// if (prevIntensity == null) prevIntensity = 0.0;
-	//
-	// switch (mode)
-	// {
-	// case SiriusExportParameters.ROUND_MODE_SUM:
-	// integerDataPoints.put(mz, prevIntensity + intensity);
-	// break;
-	//
-	// case SiriusExportParameters.ROUND_MODE_MAX:
-	// integerDataPoints.put(mz, Math.max(prevIntensity, intensity));
-	// break;
-	// }
-	// }
-	//
-	// DataPoint[] result = new DataPoint[integerDataPoints.size()];
-	// int count = 0;
-	// for (Entry <Double, Double> e : integerDataPoints.entrySet())
-	// result[count++] = new SimpleDataPoint(e.getKey(), e.getValue());
-	//
-	// return result;
-	// }
-
+	}*/
 }
-=======
-}
->>>>>>> mzmine/master
