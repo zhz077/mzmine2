@@ -247,7 +247,7 @@ public class SiriusExportTask extends AbstractTask {
 					writer.write(peak.getMZ() + " " + peak.getIntensity() + newLine);
 				}
 				writer.write("END IONS" + newLine);
-				writer.write((int)(toPrintScanNumber));
+
 				writer.write(newLine);
 				
 				
